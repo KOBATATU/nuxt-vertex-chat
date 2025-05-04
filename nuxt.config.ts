@@ -8,4 +8,8 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss() as any],
   },
+  runtimeConfig: {
+    GCP_PROJECT_ID: process.env.GCP_PROJECT_ID,
+    GCP_LOCATION: process.env.GCP_LOCATION,
+  },
 });
