@@ -126,7 +126,7 @@ const sendMessage = async () => {
        * 2回目の read(): value = ( ージ後半\n\n のバイト列)
        * という感じでのことを考慮してlastChunkを利用する
        */
-      buffer += decoder.decode(value, { stream: true });
+      buffer += decoder.decode(value);
       const lines = buffer.split("\n\n");
       const lastChunk = lines.pop() || "";
 
