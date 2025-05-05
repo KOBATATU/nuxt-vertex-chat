@@ -19,20 +19,26 @@ export default defineEventHandler(async (event) => {
       async start(controller) {
         console.log("[API] Starting to stream response to client...");
         try {
+          const result = [];
           for await (const chunk of geminiStream) {
             const text = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) {
+              // SSE 形式
               controller.enqueue(
                 new TextEncoder().encode(
                   `data: ${JSON.stringify({ text })}\n\n`
                 )
               );
             }
+            result.push(text);
           }
+          console.log(result.join(""));
           console.log("[API] Finished streaming response to client.");
+          // {value: null, done: true }となる
           controller.close();
         } catch (error) {
           console.error("[API] Error while processing Gemini stream:", error);
+          // throwされて外側でcatchされる．createErrorがresponseされる．`{done: true}`となる
           controller.error(
             new Error(
               "An error occurred while processing the AI response stream."
@@ -43,7 +49,6 @@ export default defineEventHandler(async (event) => {
     });
 
     event.node.res.setHeader("Content-Type", "text/event-stream");
-    event.node.res.setHeader("Cache-Control", "no-cache");
     event.node.res.setHeader("Connection", "keep-alive");
     event.node.res.statusCode = 200;
     return sendStream(event, responseStream);
